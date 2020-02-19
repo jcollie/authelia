@@ -77,10 +77,11 @@ Docker or on top of [Kubernetes].
 
 ## Getting Started
 
-You can start off with
+You can start utilising Authelia with the provided `docker-compose` bundles:
 
-    git clone https://github.com/authelia/authelia.git && cd authelia
-    source bootstrap.sh
+- `git clone https://github.com/authelia/authelia.git && cd authelia/compose/lite`
+- Modify the `configuration.yml`, `docker-compose.yml`, `users_database.yml` with your respective domains and secrets, the default username and password is `authelia`
+- `docker-compose up -d`
 
 If you want to go further, please read [Getting Started](./docs/getting-started.md).
 
