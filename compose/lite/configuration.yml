@@ -4,22 +4,18 @@
 
 host: 0.0.0.0
 port: 9091
-
 logs_level: debug
-
 # This secret can also be set using the env variables AUTHELIA_JWT_SECRET
 jwt_secret: a_very_important_secret
-
-default_redirection_url: https://auth.example.com
-
+default_redirection_url: https://public.example.com
 totp:
   issuer: authelia.com
 
-duo_api:
-  hostname: api-123456789.example.com
-  integration_key: ABCDEF
-  # This secret can also be set using the env variables AUTHELIA_DUO_API_SECRET_KEY
-  secret_key: 1234567890abcdefghifjkl
+#duo_api:
+#  hostname: api-123456789.example.com
+#  integration_key: ABCDEF
+#  # This secret can also be set using the env variables AUTHELIA_DUO_API_SECRET_KEY
+#  secret_key: 1234567890abcdefghifjkl
 
 authentication_backend:
   file:
@@ -27,29 +23,22 @@ authentication_backend:
 
 access_control:
   default_policy: deny
-
   rules:
     # Rules applied to everyone
-    - domain: auth.example.com
+    - domain: public.example.com
       policy: bypass
-
     - domain: traefik.example.com
       policy: one_factor
-
     - domain: secure.example.com
       policy: two_factor
 
 session:
   name: authelia_session
-
   # This secret can also be set using the env variables AUTHELIA_SESSION_SECRET
   secret: unsecure_session_secret
-
   expiration: 3600 # 1 hour
-
   inactivity: 300 # 5 minutes
-
-  domain: example.com # This should match whatever your root protected domain is
+  domain: example.com # Should match whatever your root protected domain is
 
   redis:
     host: redis
@@ -59,9 +48,7 @@ session:
 
 regulation:
   max_retries: 3
-
   find_time: 120
-
   ban_time: 300
 
 storage:
@@ -73,19 +60,6 @@ notifier:
     username: test
     # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD
     password: password
-    host: 127.0.0.1
-    port: 1025
+    host: mail.example.com
+    port: 25
     sender: admin@example.com
-    ## disable_require_tls: false
-    ## disable_verify_cert: false
-    ## trusted_cert: ""
-
-  # Sending an email using a Gmail account is as simple as the next section.
-  # You need to create an app password by following: https://support.google.com/accounts/answer/185833?hl=en
-  ## smtp:
-  ##   username: myaccount@gmail.com
-  ##   # This secret can also be set using the env variables AUTHELIA_NOTIFIER_SMTP_PASSWORD
-  ##   password: yourapppassword
-  ##   sender: admin@example.com
-  ##   host: smtp.gmail.com
-  ##   port: 587

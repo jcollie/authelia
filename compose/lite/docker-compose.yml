@@ -73,9 +73,9 @@ services:
       - '--log.level=DEBUG'
       - '--log.filepath=/var/log/traefik.log'
 
-  whoami:
+  secure:
     image: containous/whoami
-    container_name: whoami
+    container_name: secure
     networks:
       - net
     labels:
@@ -83,7 +83,24 @@ services:
       - 'traefik.http.routers.secure.rule=Host(`secure.example.com`)'
       - 'traefik.http.routers.secure.entrypoints=https'
       - 'traefik.http.routers.secure.tls=true'
+      - 'traefik.http.routers.secure.tls.certresolver=letsencrypt'
       - 'traefik.http.routers.secure.middlewares=authelia@docker'
     expose:
       - 80
     restart: unless-stopped
+
+    public:
+      image: containous/whoami
+      container_name: public
+      networks:
+        - net
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.http.routers.public.rule=Host(`public.example.com`)'
+        - 'traefik.http.routers.public.entrypoints=https'
+        - 'traefik.http.routers.public.tls=true'
+        - 'traefik.http.routers.public.tls.certresolver=letsencrypt'
+        - 'traefik.http.routers.public.middlewares=authelia@docker'
+      expose:
+        - 80
+      restart: unless-stopped
