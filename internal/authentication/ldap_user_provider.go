@@ -126,11 +126,15 @@ func (p *LDAPUserProvider) getUserAttribute(conn LDAPConnection, username string
 	}
 
 	if len(sr.Entries) != 1 {
-		return nil, fmt.Errorf("No %s found for user %s", attribute, username)
+		return nil, fmt.Errorf("No entry when searching for attribute %s of user %s", attribute, username)
 	}
 
 	if attribute == "dn" {
 		return []string{sr.Entries[0].DN}, nil
+	}
+
+	if len(sr.Entries[0].Attributes) != 1 {
+		return nil, fmt.Errorf("No attribute values when searching for attribute %s of user %s", attribute, username)
 	}
 
 	return sr.Entries[0].Attributes[0].Values, nil
@@ -251,9 +255,15 @@ func (p *LDAPUserProvider) GetDetails(username string) (*UserDetails, error) {
 		emails = append(emails, res.Attributes[0].Values...)
 	}
 
+	userID, err := p.getUserUID(conn, username)
+	if err != nil {
+		return nil, err
+	}
+
 	return &UserDetails{
-		Emails: emails,
-		Groups: groups,
+		Username: userID,
+		Emails:   emails,
+		Groups:   groups,
 	}, nil
 }
 

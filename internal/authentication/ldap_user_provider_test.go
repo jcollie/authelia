@@ -167,15 +167,16 @@ func TestShouldNotCrashWhenGroupsAreNotRetrievedFromLDAP(t *testing.T) {
 
 	mockFactory.EXPECT().
 		Dial(gomock.Eq("tcp"), gomock.Eq("127.0.0.1:389")).
-		Return(mockConn, nil).Times(2)
+		Return(mockConn, nil).
+		Times(3)
 
 	mockConn.EXPECT().
 		Bind(gomock.Eq("cn=admin,dc=example,dc=com"), gomock.Eq("password")).
 		Return(nil).
-		Times(2)
+		Times(3)
 
 	mockConn.EXPECT().
-		Close().Times(2)
+		Close().Times(3)
 
 	searchGroups := mockConn.EXPECT().
 		Search(gomock.Any()).
@@ -186,12 +187,16 @@ func TestShouldNotCrashWhenGroupsAreNotRetrievedFromLDAP(t *testing.T) {
 	searchEmails := mockConn.EXPECT().
 		Search(gomock.Any()).
 		Return(createSearchResultWithAttributeValues("test@example.com"), nil)
+	searchUsername := mockConn.EXPECT().
+		Search(gomock.Any()).
+		Return(createSearchResultWithAttributeValues("John"), nil)
 
-	gomock.InOrder(searchGroups, searchUserDN, searchEmails)
+	gomock.InOrder(searchGroups, searchUserDN, searchEmails, searchUsername)
 
 	details, err := ldapClient.GetDetails("john")
 	require.NoError(t, err)
 
+	assert.Equal(t, details.Username, "John")
 	assert.ElementsMatch(t, details.Groups, []string{})
 	assert.ElementsMatch(t, details.Emails, []string{"test@example.com"})
 }
@@ -214,15 +219,16 @@ func TestShouldNotCrashWhenEmailsAreNotRetrievedFromLDAP(t *testing.T) {
 
 	mockFactory.EXPECT().
 		Dial(gomock.Eq("tcp"), gomock.Eq("127.0.0.1:389")).
-		Return(mockConn, nil).Times(2)
+		Return(mockConn, nil).
+		Times(3)
 
 	mockConn.EXPECT().
 		Bind(gomock.Eq("cn=admin,dc=example,dc=com"), gomock.Eq("password")).
 		Return(nil).
-		Times(2)
+		Times(3)
 
 	mockConn.EXPECT().
-		Close().Times(2)
+		Close().Times(3)
 
 	searchGroups := mockConn.EXPECT().
 		Search(gomock.Any()).
@@ -233,12 +239,16 @@ func TestShouldNotCrashWhenEmailsAreNotRetrievedFromLDAP(t *testing.T) {
 	searchEmails := mockConn.EXPECT().
 		Search(gomock.Any()).
 		Return(createSearchResultWithAttributes(), nil)
+	searchUsername := mockConn.EXPECT().
+		Search(gomock.Any()).
+		Return(createSearchResultWithAttributeValues("John"), nil)
 
-	gomock.InOrder(searchGroups, searchUserDN, searchEmails)
+	gomock.InOrder(searchGroups, searchUserDN, searchEmails, searchUsername)
 
 	details, err := ldapClient.GetDetails("john")
 	require.NoError(t, err)
 
+	assert.Equal(t, details.Username, "John")
 	assert.ElementsMatch(t, details.Groups, []string{"group1", "group2"})
 	assert.ElementsMatch(t, details.Emails, []string{})
 }
